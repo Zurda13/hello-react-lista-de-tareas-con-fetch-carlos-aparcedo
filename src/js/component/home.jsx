@@ -8,10 +8,6 @@ function TodoList() {
     const [hoverIndex, setHoverIndex] = useState(null);
     // despues de los estados declaramos las funcionalidades, no importa el orden 
 
-    function obtenerContenido() {
-        fetch('https://playground.4geeks.com/apis/fake/todos/')
-
-    }
 
     const addTask = () => {
         if (newTask !== '') {
@@ -43,9 +39,13 @@ function TodoList() {
     };
 
     const isTaskEmpty = tasks.length === 0;
-    //aqui vamos a mopstrat todo lo que se ve en el componente
+    //aqui vamos a mostrar todo lo que se ve en el componente
 
     //por una cuestion de buena practicas el useEffect se utiliza antes del return 
+
+    //la diferencia entre la linea 50 y la linea 52... 
+    //la 50 esta utilizando estilos en linea que no esta mal PERO se utiliza de ultima opcion
+    //la 52 esta utilizando propiedades de boostrap 
 
     // style={{ maxWidth: '400px', margin: '0 auto', boxShadow: '0 4px 6px rgba(45, 0, 9, 3)', borderRadius: '25px', backgroundColor: '#ffe4c4' }}
     return (
