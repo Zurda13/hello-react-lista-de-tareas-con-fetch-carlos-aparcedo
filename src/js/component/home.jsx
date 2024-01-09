@@ -1,65 +1,98 @@
-import React, { useState, useEffect } from 'react';
-function TodoList() {
-    //aca van todas las funcionalidades y la declaracion de los estados
-    // 1. declarar todos los estados juntos y de primero
-    const [task, setTask] = useState([]);
-    const [newTask, setNewTask] = useState(''); // el SET lo que hace es modivicar el valor de algo
-    const [hoverIndex, setHoverIndex] = useState(null);
-    // despues de los estados declaramos las funcionalidades, no importa el orden
-    function obtenerLista() {
-        fetch("https://playground.4geeks.com/apis/fake/todos/user/Carlos.Aparcedo")
-            .then((res) => res.json())
-            // .then((data) => console.log(data)) primero se hace esto para probar que informacion me trae y luego pasamos a la siguiente parte de como se llame el array.
-            .then((data) => setTask(data)) //a la siguiente parte de como se llame el array(setTask)
-            .catch((error) => console.log(error))
+import React, { useState, useEffect } from "react";
+
+const TodoList = () => {
+  const [task, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
+  const [hoverIndex, setHoverIndex] = useState(null);
+
+  const addTask = () => {
+    if (newTask.trim()) {
+      setTasks([...task, { label: newTask, done: false }]);
+      setNewTask("");
+    }
+  };
+
+  const removeTask = (index) => {
+    const newTasks = task.filter((_, i) => i !== index);
+    setTasks(newTasks);
+  };
+
+  const removeAllTasks = () => {
+    setTasks([]);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") {
+      addTask();
+    }
+  };
+
+  const handleMouseEnter = (index) => {
+    setHoverIndex(index);
+  };
+
+  const handleMouseLeave = (index) => {
+    setHoverIndex(index);
+  };
+
+  const updateCounter = () => {
+    return task.length;
+  };
+
+  useEffect(() => {
+    const obtenerListaTareas = async () => {
+      try {
+        const response = await fetch(
+          "https://playground.4geeks.com/apis/fake/todos/user/Carlos.Aparcedo"
+        );
+        const data = await response.json();
+        setTasks(data);
+      } catch (error) {
+        console.log(error);
+      }
     };
-    const addTask = () => {
-        if (newTask !== '') {
-            setTask([...task, {"done": false,"label": newTask}]); //para ponerle un valor a la propiedad DEBES eliminar las comillas ""
-            setNewTask('');
-        }
+
+    obtenerListaTareas();
+  }, []);
+
+  useEffect(() => {
+    const actualizarListaTareas = async () => {
+      try {
+        await fetch("https://playground.4geeks.com/apis/fake/todos/user/Carlos.Aparcedo", {
+          method: "PUT",
+          body: JSON.stringify(task),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+      } catch (error) {
+        console.log(error);
+      }
     };
-    const handleKeyDown = (event) => { //esta es la funcion presionar "enter"
-        if (event.key === 'Enter') {
-            addTask();
-            event.preventDefault();
-        }
-    };
-    const removeTask = (index) => {
-        setTask(task.filter((_, i) => i !== index));
-    };
-    const updateCounter = () => {
-        return task.length;
-    };
-    const handleMouseEnter = (index) => {
-        setHoverIndex(index);
-    };
-    const handleMouseLeave = () => {
-        setHoverIndex(null);
-    };
-    const isTaskEmpty = task.length === 0;
-    //aqui vamos a mostrar todo lo que se ve en el componente
-    //por una cuestion de buena practicas el useEffect se utiliza antes del return
-    useEffect(() => {//cada vez que quiera ejecutar una funcion ni bien se cargue el componente debo hacer un useEffect, React dice esto va asi! siempre antes del
-        obtenerLista()
-    }, [])
-    return (
-        <div className="container d-flex position-absolute top-50 start-50 translate-middle flex-column col-4 my-3 mx-auto shadow-lg p-3 mb-5 bg-secondary rounded-4 " >
-            <h1 className="text-center mt-4">ToDo List</h1>
-            {/* aqui esta puesta */}
-            <input type="text" value={newTask} onChange={e => setNewTask(e.target.value)} onKeyDown={handleKeyDown} placeholder="Que hay pa hoy...?" />
-            <button onClick={addTask} className="justify-content-end btn btn-primary mt-1">Agregalo ▼</button>
-            <ul className="list-group mt-3">
-                {task.map((task, index) => (
-                    <li key={index} className="list-group-item d-flex justify-content-between align-items-center py-2" onMouseEnter={() => handleMouseEnter(index)} onMouseLeave={handleMouseLeave}>
-                        {task.label}
-                        <button onClick={() => removeTask(index)} className="btn bg-dark-subtle p-0" style={{ display: hoverIndex === index ? 'block' : 'none' }}>x</button>
-                    </li>
-                ))}
-            </ul>
-            <p className="text-center mt-3">Total tareas: {updateCounter()}</p>
-            {isTaskEmpty && <p className="text-center">No hay tareas, añadir tareas</p>}
-        </div>
-    );
-}
+
+    actualizarListaTareas();
+  }, [task]);
+
+  return (
+    <div className="container d-flex position-absolute top-50 start-50 translate-middle flex-column col-4 my-3 mx-auto shadow-lg p-3 mb-5 bg-secondary rounded-4">
+      <h1 className="text-center mt-4">ToDo List</h1>
+      <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} onKeyDown={handleKeyDown} placeholder="¿Qué hay para hoy...?"/>
+      <button onClick={addTask} className="justify-content-end btn btn-primary mt-1">Agregalo ▼</button>
+      
+      <ul className="list-group mt-3">
+        {task.map((task, index) => (
+          <li key={index} className="list-group-item d-flex justify-content-between align-items-center py-2" onMouseEnter={() => handleMouseEnter(index)} onMouseLeave={handleMouseLeave}>
+            {task.label}
+            <button
+              onClick={() => removeTask(index)} className="btn bg-dark-subtle p-0" style={{ display: hoverIndex === index ? "block" : "none" }}>x</button>
+          </li>
+        ))}
+      </ul>
+      <p className="text-center mt-3">Total de tareas: {updateCounter()}</p>
+      {task.length === 0 && <p className="text-center">No hay tareas, agregar tareas</p>}
+      <button onClick={removeAllTasks} className="justify-content-end btn btn-danger mt-1">Delete All</button>
+    </div>
+  );
+};
+
 export default TodoList;
